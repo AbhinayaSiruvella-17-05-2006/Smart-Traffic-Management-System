@@ -27,13 +27,55 @@ export default function WeatherAlerts() {
   const selectCity = (city: CitySuggestion) => { setSelectedCity(city); setQuery(city.name); setSuggestions([]); };
 
   const handleSearch = async () => {
-    if (!selectedCity) return;
-    setLoading(true);
+  if (!selectedCity) return;
+
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API}/weather?city=${selectedCity.name}`);
+
+    const text = await res.text(); // 👈 FIX
+
+    let parsed;
+
     try {
-      const res = await fetch(`${API}/weather?city=${selectedCity.name}`);
-      setData(await res.json());
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  };
+      parsed = JSON.parse(text); // safe parse
+    } catch {
+      console.error("Invalid JSON:", text);
+      setData({
+        city: selectedCity.name,
+        temperature: 0,
+        windspeed: 0,
+        alert: "⚠️ Server error"
+      });
+      return;
+    }
+
+    if (!res.ok) {
+      console.error("API error:", parsed);
+      setData({
+        city: selectedCity.name,
+        temperature: 0,
+        windspeed: 0,
+        alert: "⚠️ Failed to fetch weather"
+      });
+      return;
+    }
+
+    setData(parsed);
+
+  } catch (e) {
+    console.error(e);
+    setData({
+      city: selectedCity.name,
+      temperature: 0,
+      windspeed: 0,
+      alert: "⚠️ Network error"
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getAlertColor = (alert: string) => {
     if (alert.includes("Rain")) return "text-primary";
