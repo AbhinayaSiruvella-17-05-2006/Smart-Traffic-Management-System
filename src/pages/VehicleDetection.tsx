@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Upload, Camera, BarChart3, Loader2, Play, Pause, Pencil, Trash2, Image, Video } from "lucide-react";
 
-const API = "http://127.0.0.1:5000";
+const API = "https://traffic-backend-svv7.onrender.com";
 
 const formatTime = (s: number) => {
   const m = Math.floor(s / 60);
