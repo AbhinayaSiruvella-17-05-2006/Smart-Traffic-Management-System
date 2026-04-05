@@ -1,7 +1,6 @@
-from flask import Flask, request, jsonify, Response
-from flask_cors import CORS
+from flask import request, jsonify, Response
 import cv2
-from ultralytics import YOLO
+
 import os
 import numpy as np
 import base64
@@ -9,8 +8,7 @@ import json
 import threading
 import time
 
-app = Flask(__name__)
-CORS(app)
+
 
 # MODEL
 model = None
@@ -28,11 +26,6 @@ VEHICLE_MAP = {
     5: "bus",
     7: "truck"
 }
-
-
-
-
-
 
 # GLOBAL STATE
 counted_ids = set()
@@ -64,7 +57,7 @@ def reset_all():
     seek_to_position = -1
 
 
-@app.route("/upload_video", methods=["POST"])
+
 def upload_video():
     file = request.files.get("file")
     if not file:
@@ -200,27 +193,27 @@ def generate_frames():
     except:
          pass
 
-@app.route("/video_feed")
+
 def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-@app.route("/stop_video", methods=["POST"])
+
 def stop_video():
     global video_playing
     video_playing = False
     return jsonify({"status": "paused"})
 
 
-@app.route("/resume_video", methods=["POST"])
+
 def resume_video():
     global video_playing
     video_playing = True
     return jsonify({"status": "playing"})
 
 
-@app.route("/seek_video", methods=["POST"])
+
 def seek_video():
     global seek_to_position, video_playing
     data = request.get_json()
@@ -230,7 +223,7 @@ def seek_video():
     return jsonify({"status": "seeking", "position": position})
 
 
-@app.route("/stats")
+
 def stats():
     progress = video_current_frame / video_total_frames if video_total_frames > 0 else 0
     current_time = video_current_frame / video_fps if video_fps > 0 else 0
@@ -243,7 +236,7 @@ def stats():
     })
 
 
-@app.route("/upload_image", methods=["POST"])
+
 def upload_image():
     file = request.files.get("file")
     points = request.form.get("points")
