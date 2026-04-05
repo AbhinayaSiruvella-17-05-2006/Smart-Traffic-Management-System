@@ -1,13 +1,16 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import request, jsonify
 import cv2
-from ultralytics import YOLO
 import numpy as np
 
-app = Flask(__name__)
-CORS(app)
 
-model = YOLO("yolov8n.pt")
+
+model =None
+def get_model():
+    global model
+    if model is None:
+        from ultralytics import YOLO
+        model=YOLO("yolov8n.pt")
+    return model
 
 VEHICLE_CLASSES = [2, 3, 5, 7]
 
@@ -17,7 +20,7 @@ def count_vehicles(file):
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         if img is None:
             return 0
-        results = model(img)[0]
+        results = get_model()(img)[0]
         count = 0
         for box in results.boxes:
             cls = int(box.cls[0])
@@ -29,7 +32,6 @@ def count_vehicles(file):
         print(f"Error processing image: {e}")
         return 0
 
-@app.route("/analyze", methods=["POST"])
 def analyze():
     directions = ["north", "south", "east", "west"]
     raw_counts = {}
