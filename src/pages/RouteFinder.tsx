@@ -13,7 +13,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, shadowUrl: markerShadow });
 
-const API = "http://127.0.0.1:5000";
+const API = "https://traffic-backend-svv7.onrender.com";
 
 const locations = [
   "Ameerpet", "Hitech City", "Madhapur", "Kukatpally", "Gachibowli", "Begumpet",
