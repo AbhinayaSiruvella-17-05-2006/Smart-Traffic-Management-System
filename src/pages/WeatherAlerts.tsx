@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { CloudSun, Search, Thermometer, Wind, AlertTriangle } from "lucide-react";
 
-const API = "http://127.0.0.1:5000";
+const API = "https://traffic-backend-svv7.onrender.com";
 
 interface WeatherData { city: string; temperature: number; windspeed: number; alert: string; }
 interface CitySuggestion { name: string; country: string; latitude: number; longitude: number; }
