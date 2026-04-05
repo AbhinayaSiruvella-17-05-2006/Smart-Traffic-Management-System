@@ -2,6 +2,8 @@
 TrafficIQ - Combined Backend Server
 Runs all services on a single Flask instance (port 5000)
 """
+import os
+
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import wikipedia
@@ -67,6 +69,7 @@ def improve_query(user_input):
 
 
 
+
 if __name__ == "__main__":
-    print("🚦 TrafficIQ Backend starting on http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
