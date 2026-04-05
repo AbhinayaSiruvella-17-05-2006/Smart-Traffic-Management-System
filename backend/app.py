@@ -47,7 +47,7 @@ app.add_url_rule("/weather", view_func=get_weather, methods=["GET"])
 def health():
     return jsonify({"status": "ok", "service": "TrafficIQ Backend"})
 
-import wikipedia
+
 
 def improve_query(user_input):
     text = user_input.lower()
