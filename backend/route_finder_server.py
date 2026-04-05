@@ -1,9 +1,7 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import request, jsonify
 import requests
 
-app = Flask(__name__)
-CORS(app)
+
 
 # 🔹 Convert place name → coordinates
 def geocode(place):
@@ -16,7 +14,7 @@ def geocode(place):
     return float(res[0]["lat"]), float(res[0]["lon"])
 
 
-@app.route("/route", methods=["POST"])
+
 def get_route():
     data = request.json
     source = data.get("source")
@@ -65,8 +63,6 @@ def get_route():
         })
 
 
-@app.route("/health")
-def health():
-    return jsonify({"status": "ok"})
+
 
 
