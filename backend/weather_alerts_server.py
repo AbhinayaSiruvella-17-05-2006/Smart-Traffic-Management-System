@@ -36,5 +36,3 @@ def get_weather():
         "alert": alert
     })
 
-if __name__ == '__main__':
-    app.run(debug=True)
