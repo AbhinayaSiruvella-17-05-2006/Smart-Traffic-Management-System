@@ -13,7 +13,14 @@ app = Flask(__name__)
 CORS(app)
 
 # MODEL
-model = YOLO("yolov8m.pt")
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        from ultralytics import YOLO
+        model = YOLO("yolov8n.pt")
+    return model
 
 VEHICLE_MAP = {
     2: "car",
@@ -123,7 +130,7 @@ def generate_frames():
 
         frame = cv2.resize(frame, (640, 360))
 
-        results = model.track(
+        results = get_model().track(
             frame,
             persist=True,
             imgsz=640,
@@ -257,7 +264,7 @@ def upload_image():
         h, w = frame.shape[:2]
         polygon = np.array([[0, 0], [w, 0], [w, h], [0, h]], dtype=np.int32)
 
-    results = model(frame, imgsz=1280, conf=0.15, iou=0.5)[0]
+    results = get_model()(frame, imgsz=1280, conf=0.15, iou=0.5)[0]
     image_counts = {}
 
     cv2.polylines(frame, [polygon], True, (255, 0, 0), 2)
