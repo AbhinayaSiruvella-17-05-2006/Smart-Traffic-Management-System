@@ -1,14 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 import requests
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
-
-@app.route('/weather', methods=['GET'])
 def get_weather():
     city = request.args.get('city')
-
     geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}"
     geo_res = requests.get(geo_url).json()
 
