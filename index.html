@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/jpg" href="/oil2.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Traffic Management System</title>
+    <meta name="description" content="Smart Traffic Management System" />
+    <meta property="og:title" content="Smart Traffic Management System" />
+    <meta property="og:description" content="Smart Traffic Management System" />
+    <meta property="og:type" content="website" />
+    <style>
+      body {
+        top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      /* Hide ALL Google Translate UI artifacts */
+      #goog-gt-tt,
+      .goog-te-balloon-frame,
+      .goog-logo-link,
+      .goog-te-gadget img,
+      .goog-te-banner-frame,
+      .skiptranslate,
+      .goog-te-spinner-pos {
+        display: none !important;
+      }
+      body { top: 0 !important; }
+      .goog-text-highlight { background: none !important; box-shadow: none !important; }
+      /* Hide the default Google widget - we use our own UI */
+      #google_translate_element {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Hidden Google Translate widget -->
+    <div id="google_translate_element"></div>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- INIT GOOGLE TRANSLATE -->
+    <script>
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            includedLanguages: "en,hi,ta,te,kn,ml,bn,mr,gu,pa,ur,fr,es,de,zh-CN,ja,ko,ar,pt,ru",
+            autoDisplay: false,
+          },
+          "google_translate_element"
+        );
+      }
+    </script>
+
+    <!-- REMOVE TOP BANNER continuously -->
+    <script>
+      function hideGoogleBanner() {
+        const frame = document.querySelector(".goog-te-banner-frame");
+        if (frame) frame.remove();
+        document.body.style.top = "0px";
+        document.documentElement.style.top = "0px";
+        const skips = document.querySelectorAll(".skiptranslate");
+        skips.forEach(el => {
+          if (!el.querySelector("#google_translate_element")) {
+            el.style.display = "none";
+          }
+        });
+      }
+      window.addEventListener("load", hideGoogleBanner);
+      new MutationObserver(hideGoogleBanner)
+        .observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+    </script>
+
+    <!-- GOOGLE TRANSLATE SCRIPT -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  </body>
+</html>
