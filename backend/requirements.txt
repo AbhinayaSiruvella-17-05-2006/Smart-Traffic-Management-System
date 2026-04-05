@@ -1,0 +1,9 @@
+flask
+flask-cors
+requests
+numpy
+opencv-python-headless
+ultralytics
+networkx
+osmnx
+wikipedia
