@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TrafficCone, Upload, Play, Pause, Square, RotateCcw } from "lucide-react";
 
-const API = "http://127.0.0.1:5000";
+const API = "https://traffic-backend-svv7.onrender.com";
 const directions = ["NORTH", "SOUTH", "EAST", "WEST"] as const;
 
 interface SequenceItem { road: string; time: number; }
