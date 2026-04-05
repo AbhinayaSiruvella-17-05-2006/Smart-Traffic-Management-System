@@ -4,6 +4,3 @@ requests
 numpy
 opencv-python-headless
 ultralytics
-networkx
-osmnx
-wikipedia

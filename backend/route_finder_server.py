@@ -1,19 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import osmnx as ox
-import networkx as nx
-import random
+import requests
 
 app = Flask(__name__)
 CORS(app)
 
-print("Loading Hyderabad map... ⏳")
-G = ox.graph_from_place("Hyderabad, India", network_type='drive')
-print("Map loaded ✅")
+# 🔹 Convert place name → coordinates
+def geocode(place):
+    url = f"https://nominatim.openstreetmap.org/search?q={place}, Hyderabad, India&format=json"
+    res = requests.get(url, headers={"User-Agent": "traffic-app"}).json()
 
-for u, v, key, data in G.edges(keys=True, data=True):
-    traffic = random.randint(1, 5)
-    data['weight'] = data['length'] * traffic
+    if len(res) == 0:
+        raise Exception(f"Location not found: {place}")
+
+    return float(res[0]["lat"]), float(res[0]["lon"])
 
 
 @app.route("/route", methods=["POST"])
@@ -23,38 +23,54 @@ def get_route():
     destination = data.get("destination")
 
     try:
-        orig = ox.geocode(source + ", Hyderabad, India")
-        dest = ox.geocode(destination + ", Hyderabad, India")
+        # 🔹 Get coordinates
+        src_lat, src_lon = geocode(source)
+        dst_lat, dst_lon = geocode(destination)
 
-        orig_node = ox.distance.nearest_nodes(G, orig[1], orig[0])
-        dest_node = ox.distance.nearest_nodes(G, dest[1], dest[0])
+        # 🔹 Fastest route
+        url_fast = f"http://router.project-osrm.org/route/v1/driving/{src_lon},{src_lat};{dst_lon},{dst_lat}?overview=full&geometries=geojson"
 
-        route_fast = nx.shortest_path(G, orig_node, dest_node, weight='length')
-        route_traffic = nx.shortest_path(G, orig_node, dest_node, weight='weight')
+        # 🔹 Alternative route (for "traffic")
+        url_alt = f"http://router.project-osrm.org/route/v1/driving/{src_lon},{src_lat};{dst_lon},{dst_lat}?alternatives=true&overview=full&geometries=geojson"
 
-        def get_coords(route):
-            return [(G.nodes[n]['y'], G.nodes[n]['x']) for n in route]
+        res_fast = requests.get(url_fast).json()
+        res_alt = requests.get(url_alt).json()
 
-        def get_distance(route):
-            total = 0
-            for u, v in zip(route[:-1], route[1:]):
-                edge = list(G.get_edge_data(u, v).values())[0]
-                total += edge.get("length", 0)
-            return round(total / 1000, 2)
+        # 🔹 Extract routes
+        route1 = res_fast["routes"][0]
+
+        if len(res_alt["routes"]) > 1:
+            route2 = res_alt["routes"][1]
+        else:
+            route2 = route1  # fallback if no alternative
+
+        # 🔹 Convert coordinates (lon,lat → lat,lon)
+        coords1 = [(lat, lon) for lon, lat in route1["geometry"]["coordinates"]]
+        coords2 = [(lat, lon) for lon, lat in route2["geometry"]["coordinates"]]
 
         return jsonify({
             "status": "success",
-            "route_fast": get_coords(route_fast),
-            "route_traffic": get_coords(route_traffic),
-            "fast_distance": get_distance(route_fast),
-            "traffic_distance": get_distance(route_traffic),
-            "start": orig,
-            "end": dest
+            "route_fast": coords1,
+            "route_traffic": coords2,
+            "fast_distance": round(route1["distance"] / 1000, 2),
+            "traffic_distance": round(route2["distance"] / 1000, 2),
+            "start": [src_lat, src_lon],
+            "end": [dst_lat, dst_lon]
         })
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
